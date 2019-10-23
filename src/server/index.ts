@@ -39,11 +39,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/colyseus'
 const app = express();
 const gameServer = new Server({ server: http.createServer(app) });
 
-gameServer.define("2minutes", DrawingRoom, { expiration: 60 * 2 });
-gameServer.define("5minutes", DrawingRoom, { expiration: 60 * 5 });
-gameServer.define("1hour", DrawingRoom, { expiration: 60 * 60 });
-gameServer.define("1day", DrawingRoom, { expiration: 60 * 60 * 24 });
-gameServer.define("1week", DrawingRoom, { expiration: 60 * 60 * 24 * 7 });
+gameServer.define("default", DrawingRoom, {});
 
 if (process.env.NODE_ENV !== "production") {
     const webpackCompiler = webpack(webpackConfig({}));
@@ -83,3 +79,7 @@ app.use("/colyseus", auth, monitor(gameServer));
 
 gameServer.listen(port);
 console.log(`Listening on http://${endpoint}:${port}`);
+/*gameServer.define("5minutes", DrawingRoom, { expiration: 60 * 5 });
+gameServer.define("1hour", DrawingRoom, { expiration: 60 * 60 });
+gameServer.define("1day", DrawingRoom, { expiration: 60 * 60 * 24 });
+gameServer.define("1week", DrawingRoom, { expiration: 60 * 60 * 24 * 7 });*/

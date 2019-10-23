@@ -1,9 +1,10 @@
 import { get } from "httpie";
-import { State, DEFAULT_BRUSH, BRUSH } from "../../server/rooms/State";
+import { State} from "../../server/rooms/State";
 import brushFunctions from "../brushes";
 import { clearCanvas } from "./gameplay";
 
-const drawingEl = document.querySelector('#drawing');
+/*const drawingEl = document.querySelector('#drawing');*/
+/*
 const drawingCanvas = drawingEl.querySelector('canvas');
 const drawingCtx = drawingCanvas.getContext('2d');
 
@@ -20,4 +21,4 @@ export async function showDrawing(_id) {
 
 export function hideDrawing() {
   drawingEl.classList.add('hidden');
-}
+}*/

@@ -1,7 +1,5 @@
-import { Schema, type } from "@colyseus/schema";
-import { Path } from "./State";
+/*import { Schema, type } from "@colyseus/schema";
 
 export class Player extends Schema {
   @type("string") name: string;
-  lastPath: Path;
-}
+}*/

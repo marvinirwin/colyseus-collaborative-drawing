@@ -1,4 +1,3 @@
-import { BRUSH } from "../../server/rooms/State";
 import { getRGB, toHex } from "../utils/color";
 
 function midPointBtw(p1x, p1y, p2x, p2y) {
@@ -12,7 +11,7 @@ export default {
   /**
    * "Sketch" brush: https://codepen.io/kangax/pen/EjivI
    */
-  [BRUSH.SKETCH]: (ctx: CanvasRenderingContext2D, color: number, points: number[], isPreview: boolean = false) => {
+/*  [BRUSH.SKETCH]: (ctx: CanvasRenderingContext2D, color: number, points: number[], isPreview: boolean = false) => {
     const rgb = getRGB(color);
     ctx.strokeStyle = toHex(color);
     ctx.lineWidth = 1;
@@ -48,12 +47,12 @@ export default {
         }
       }
     }
-  },
+  },*/
 
   /**
    * Pen: https://codepen.io/kangax/pen/aoxwb
    */
-  [BRUSH.PEN]: (ctx: CanvasRenderingContext2D, color: number, points: number[], isPreview: boolean = false) => {
+/*  [BRUSH.PEN]: (ctx: CanvasRenderingContext2D, color: number, points: number[], isPreview: boolean = false) => {
     ctx.strokeStyle = toHex(color);
     ctx.lineJoin = ctx.lineCap = 'round';
 
@@ -73,12 +72,12 @@ export default {
       ctx.lineTo(currentX, currentY);
       ctx.stroke();
     }
-  },
+  },*/
 
   /**
    * Marker: https://codepen.io/kangax/pen/jLDAf
    */
-  [BRUSH.MARKER]: (ctx: CanvasRenderingContext2D, color: number, points: number[], isPreview: boolean = false) => {
+/*  [BRUSH.MARKER]: (ctx: CanvasRenderingContext2D, color: number, points: number[], isPreview: boolean = false) => {
     ctx.strokeStyle = toHex(color);
 
     ctx.lineWidth = 3;
@@ -114,7 +113,7 @@ export default {
       ctx.lineTo(currentX + 4, currentY + 4);
       ctx.stroke();
     }
-  },
+  },*/
 
   /**
    * Rounded: https://codepen.io/kangax/pen/zofsp
