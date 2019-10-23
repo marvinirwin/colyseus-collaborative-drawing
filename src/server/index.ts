@@ -22,7 +22,7 @@ import { DrawingRoom } from "./rooms/DrawingRoom";
 import Drawing from "./db/Drawing";
 
 export const port = Number(process.env.PORT || 8080);
-export const endpoint = "localhost";
+export const endpoint = "0.0.0.0";
 
 export let STATIC_DIR: string;
 
