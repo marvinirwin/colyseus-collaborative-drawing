@@ -19,7 +19,6 @@ import { monitor } from "@colyseus/monitor";
 import mongoose from 'mongoose';
 
 import { DrawingRoom } from "./rooms/DrawingRoom";
-import Drawing from "./db/Drawing";
 
 export const port = Number(process.env.PORT || 8080);
 export const endpoint = "0.0.0.0";
@@ -45,7 +44,6 @@ if (process.env.NODE_ENV !== "production") {
     const webpackCompiler = webpack(webpackConfig({}));
     app.use(webpackDevMiddleware(webpackCompiler, {}));
     app.use(webpackHotMiddleware(webpackCompiler));
-
     // on development, use "../../" as static root
     STATIC_DIR = path.resolve(__dirname, "..", "..");
 
@@ -60,17 +58,17 @@ app.use("/", express.static(STATIC_DIR));
 app.use("/", socialRoutes);
 
 app.get('/drawings', async (req, res) => {
-  res.json(await Drawing.find({}, {
+/*  res.json(await Drawing.find({}, {
     _id: 1,
     mode: 1,
     createdAt: 1,
   }).sort({
     createdAt: -1
-  }));
+  }));*/
 });
 
 app.get('/drawings/:id', async (req, res) => {
-  res.json(await Drawing.findOne({ _id: req.params.id }));
+/*  res.json(await Drawing.findOne({ _id: req.params.id }));*/
 });
 
 // add colyseus monitor

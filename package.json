@@ -34,12 +34,16 @@
   "dependencies": {
     "@colyseus/monitor": "^0.11.0",
     "@colyseus/social": "^0.11.0",
+    "@types/lodash": "^4.14.144",
+    "@types/matter-js": "^0.10.4",
     "colyseus": "^0.11.6",
     "colyseus.js": "^0.11.0",
     "express": "^4.16.4",
     "express-basic-auth": "^1.1.6",
     "express-jwt": "^5.3.1",
     "httpie": "^2.0.0-next.2",
-    "mongoose": "^5.6.11"
+    "matter-js": "^0.14.2",
+    "mongoose": "^5.6.11",
+    "three": "^0.109.0"
   }
 }

@@ -1,53 +1,129 @@
 import {client} from "../utils/networking";
 import {Room} from "colyseus.js";
 import {State} from "../../server/rooms/State";
-import {ChangeTree} from "@colyseus/schema/lib/ChangeTree";
-import {ShipPlayer, ShipRoom} from "../../server/rooms/Ship";
+import {ShipPlayer, ShipRoom, Wall} from "../../server/rooms/Ship";
+import * as THREE from 'three';
+import {Mesh} from 'three';
 
 let room: Room<State>;
 
-const gameEl = document.getElementById('game') as HTMLCanvasElement;
-const gameContext = gameEl.getContext('2d');
-const debug = document.getElementById('debug') as HTMLDivElement;
 
+const WIDTH = 800;
+const HEIGHT = 600;
+// Set some camera attributes.
+const VIEW_ANGLE = 45;
+const ASPECT = WIDTH / HEIGHT;
+const NEAR = 0.1;
+const FAR = 10000;
+// Get the DOM element to attach to
+const container =
+    document.querySelector('#container');
 
+const scene = new THREE.Scene();
+/*var camera = new THREE.OrthographicCamera(WIDTH / -2, WIDTH / 2, HEIGHT / 2, HEIGHT / -2, 1, 10000);*/
+
+// Create a WebGL renderer, camera
+// and a scene
+const renderer = new THREE.WebGLRenderer();
+// TODO change this to orthographic camera
+const camera =
+    new THREE.PerspectiveCamera(
+        VIEW_ANGLE,
+        ASPECT,
+        NEAR,
+        FAR
+    );
+
+scene.add(camera);
+
+camera.position.set(0, 150, 400);
+camera.lookAt(scene.position);
+
+renderer.setSize(WIDTH, HEIGHT);
+renderer.domElement.setAttribute('tabindex', "1000");
+
+container.appendChild(renderer.domElement);
 
 export async function showGameplay() {
     room = await client.joinOrCreate("default", {
         nickname: (document.getElementById('username') as HTMLInputElement).value
     });
+
+    function makeSquare(x, y, width, height, color = 0xabcdef): THREE.Mesh {
+        var geometry = new THREE.PlaneGeometry(width, height, 32);
+        var material = new THREE.MeshBasicMaterial({color, side: THREE.DoubleSide});
+        var plane = new THREE.Mesh(geometry, material);
+        plane.position.set(x, y, 0);
+        scene.add(plane);
+        console.log(x, y);
+        return plane;
+    }
+
+    const objMeshMap: Map<string, THREE.Mesh> = new Map();
+
+    let renderCount = 0;
+
     function render() {
-        // clear
-        // gameContext.clearRect(0, 0, gameEl.width, gameEl.height);
-        gameContext.fillStyle = 'rgb(0, 0, 200)';
-        // Fill in the background
-        gameContext.fillRect(0, 0, gameEl.width, gameEl.height);
-        gameContext.font = '24px serif';
-        gameContext.fillStyle = 'rgb(0, 0, 0)';
-        // Fill in the rooms
+        renderCount++;
+        let debugInfo = [];
         for (let id in room.state.rooms) {
             const shipRoom: ShipRoom = room.state.rooms[id];
-            gameContext.fillStyle = 'rgb(255, 255, 0)';
-            gameContext.fillRect(
-                shipRoom.x1,
-                shipRoom.y1,
-                shipRoom.x2 - shipRoom.x1,
-                shipRoom.y2 - shipRoom.y1
-            );
+            let m: Mesh = objMeshMap.get(shipRoom._uid);
+
+            if (m) {
+            } else {
+                objMeshMap.set(
+                    shipRoom._uid,
+                    m = makeSquare(shipRoom.x, shipRoom.y, shipRoom.width, shipRoom.height)
+                );
+            }
+            debugInfo.push('room: ' + m.position.x + ' ' + m.position.y);
         }
 
+        let me: Mesh = undefined;
         for (let id in room.state.players) {
             const p: ShipPlayer = room.state.players[id];
-            gameContext.fillRect(p.x, p.y, 25, 25);
+            let m: Mesh = objMeshMap.get(p._uid);
+            if (m) {
+                m.position.set(p.x, p.y, m.position.z);
+            } else {
+                objMeshMap.set(p._uid, m = makeSquare(p.x, p.y, p.width, p.height, 0xabcabca));
+            }
+            if (!me) {
+                me = m;
+            }
+            debugInfo.push('player: ' + m.position.x + ' ' + m.position.y);
         }
-        gameContext.fillStyle = 'rgb(256, 256, 256)';
-        for (let id in room.state.players) {
-            const p: ShipPlayer = room.state.players[id];
-            gameContext.fillText(p.name, p.x, p.y + 50);
+        for (let id in room.state.walls) {
+            const wall: Wall = room.state.walls[id];
+            let m: Mesh = objMeshMap.get(wall._uid);
+            if (m) {
+            } else {
+                objMeshMap.set(
+                    wall._uid,
+                    m = makeSquare(wall.x, wall.y, wall.width, wall.height, 0xffffff)
+                );
+            }
+            debugInfo.push('wall: ' + m.position.x + ' ' + m.position.y);
+        }
+        for (let id in room.state.projectiles) {
+
         }
 
+        if (me) {
+            camera.position.set(me.position.x, me.position.y, camera.position.z);
+        }
+        debugInfo.push('renderCount: ' + renderCount);
+
+        document.getElementById('info').innerText = debugInfo.join('\n');
+        renderer.render(scene, camera);
     }
+
+    let meMesh: THREE.Mesh;
+    // Assume the first render has us as the player
     room.state.players.onChange = (player: ShipPlayer, key: string) => {
+        // For each player create a new player and render?
+        // Yeah why not
         render();
     };
 
@@ -56,45 +132,42 @@ export async function showGameplay() {
 
     };
 
-/*    room.state.paths.onAdd = function (path, index) {
-    };*/
+    /*    room.state.paths.onAdd = function (path, index) {
+        };*/
 
     room.onMessage((message) => {
     });
     // room.onStateChange.once(() => gameplay.classList.remove('loading'));
-
-    // So this is where I put my events and stuff, in my case it will be real time position updates
-    // Is this library performant enough?
-
-    // Only one way to find out
-    // Let's just have a person walk around
     // Should we have the players be separate from the room?
     // No I don't think so?  Each frame should be delivered with full coordinates, cause im lazy
 }
+
 function checkRoom() {
     return (room);
 }
 
 
-export function clearCanvas(ctx) {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-}
 setInterval(() => {
     let anies = Object.entries(keys).filter(([k, v]) => v);
     anies.map(([k, v]) => {
-        room.send(k);
+        switch(k) {
+            case "w":
+            case "a":
+            case "s":
+            case "d":
+                room.send(k);
+        }
     })
 }, 100);
 let keys = {};
-gameEl.addEventListener("keyup", (e: KeyboardEvent) => {
+renderer.domElement.addEventListener("keyup", (e: KeyboardEvent) => {
     if (!checkRoom()) return;
     keys[e.key] = 0;
 });
-gameEl.addEventListener("keydown", (e: KeyboardEvent) => {
+renderer.domElement.addEventListener("keydown", (e: KeyboardEvent) => {
     if (!checkRoom()) return;
 
     keys[e.key] = 1;
-
 
 
     // room.send(['s', point, color, brush]);
@@ -103,7 +176,7 @@ gameEl.addEventListener("keydown", (e: KeyboardEvent) => {
     // Yeah it's all hardcoded
     // So I'll just send buttons
     // How come i can't insert KeyboardEvent
-/*    room.send(e.key);*/
+    /*    room.send(e.key);*/
 
     /*    clearCanvas(prevCtx);*/
     return;
